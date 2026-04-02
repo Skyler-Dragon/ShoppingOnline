@@ -1,21 +1,11 @@
+require('../utils/MongooseUtil');
 const Models = require('./Models');
 
 const ProductDAO = {
   async selectAll() {
     const query = {};
-    const products = await Models.Product
-      .find(query)
-      .populate('category')
-      .exec();
+    const products = await Models.Product.find(query).exec();
     return products;
-  },
-
-  async selectByID(_id) {
-    const product = await Models.Product
-      .findById(_id)
-      .populate('category')
-      .exec();
-    return product;
   },
 
   async insert(product) {
@@ -25,35 +15,15 @@ const ProductDAO = {
     return result;
   },
 
-  async update(product) {
-    const newvalues = {
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      category: product.category
-    };
-
-    const result = await Models.Product.findByIdAndUpdate(
-      product._id,
-      newvalues,
-      { new: true }
-    );
-    return result;
-  },
-
-  async delete(_id) {
-    const result = await Models.Product.findByIdAndRemove(_id);
-    return result;
+  async selectByID(_id) {
+    const product = await Models.Product.findById(_id).exec();
+    return product;
   },
 
   async selectTopNew(top) {
     const query = {};
     const mysort = { cdate: -1 };
-    const products = await Models.Product
-      .find(query)
-      .sort(mysort)
-      .limit(top)
-      .exec();
+    const products = await Models.Product.find(query).sort(mysort).limit(top).exec();
     return products;
   },
 
@@ -76,19 +46,35 @@ const ProductDAO = {
 
   async selectByCatID(_cid) {
     const query = { 'category._id': _cid };
-    const products = await Models.Product
-      .find(query)
-      .exec();
+    const products = await Models.Product.find(query).exec();
     return products;
   },
 
-  // ===== ADD THIS FUNCTION =====
+  // PHẦN THÊM
   async selectByKeyword(keyword) {
     const query = { name: { $regex: new RegExp(keyword, "i") } };
-    const products = await Models.Product
-      .find(query)
-      .exec();
+    const products = await Models.Product.find(query).exec();
     return products;
+  },
+
+  async update(product) {
+    const newvalues = {
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      category: product.category
+    };
+    const result = await Models.Product.findByIdAndUpdate(
+      product._id,
+      newvalues,
+      { new: true }
+    );
+    return result;
+  },
+
+  async delete(_id) {
+    const result = await Models.Product.findByIdAndDelete(_id);
+    return result;
   }
 };
 

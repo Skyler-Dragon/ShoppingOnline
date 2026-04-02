@@ -4,21 +4,7 @@ const Models = require('./Models');
 const CustomerDAO = {
 
   async selectByUsernameOrEmail(username, email) {
-    const query = {
-      $or: [
-        { username: username },
-        { email: email }
-      ]
-    };
-    const customer = await Models.Customer.findOne(query);
-    return customer;
-  },
-
-  async selectByUsernameAndPassword(username, password) {
-    const query = {
-      username: username,
-      password: password
-    };
+    const query = { $or: [{ username: username }, { email: email }] };
     const customer = await Models.Customer.findOne(query);
     return customer;
   },
@@ -30,6 +16,19 @@ const CustomerDAO = {
     return result;
   },
 
+  async active(_id, token, active) {
+    const query = { _id: _id, token: token };
+    const newvalues = { active: active };
+    const result = await Models.Customer.findOneAndUpdate(query, newvalues, { new: true });
+    return result;
+  },
+
+  async selectByUsernameAndPassword(username, password) {
+    const query = { username: username, password: password };
+    const customer = await Models.Customer.findOne(query);
+    return customer;
+  },
+
   async update(customer) {
     const newvalues = {
       username: customer.username,
@@ -38,24 +37,19 @@ const CustomerDAO = {
       phone: customer.phone,
       email: customer.email
     };
-    const result = await Models.Customer.findByIdAndUpdate(
-      customer._id,
-      newvalues,
-      { new: true }
-    );
+    const result = await Models.Customer.findByIdAndUpdate(customer._id, newvalues, { new: true });
     return result;
   },
 
-  // active account
-  async active(_id, token, active) {
-    const query = { _id: _id, token: token };
-    const newvalues = { active: active };
-    const result = await Models.Customer.findOneAndUpdate(
-      query,
-      newvalues,
-      { new: true }
-    );
-    return result;
+  async selectAll() {
+    const customers = await Models.Customer.find({}).exec();
+    return customers;
+  },
+
+  // ✅ THÊM HÀM NÀY
+  async selectByID(_id) {
+    const customer = await Models.Customer.findById(_id).exec();
+    return customer;
   }
 
 };
